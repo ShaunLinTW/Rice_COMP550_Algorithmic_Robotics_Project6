@@ -29,6 +29,7 @@ def RVO_update(X, V_des, V_current, ws_model):
         vA = [V_current[i][0], V_current[i][1]]
         pA = [X[i][0], X[i][1]]
         RVO_BA_all = []
+        # compute RVO for each robot
         for j in range(len(X)):
             if i!=j:
                 vB = [V_current[j][0], V_current[j][1]]
@@ -50,7 +51,8 @@ def RVO_update(X, V_des, V_current, ws_model):
                 # dist_dif = distance([0.5*(vB[0]-vA[0]),0.5*(vB[1]-vA[1])],[0,0])
                 # transl_vB_vA = [pA[0]+vB[0]+cos(theta_ort_left)*dist_dif, pA[1]+vB[1]+sin(theta_ort_left)*dist_dif]
                 RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, 2*ROB_RAD]
-                RVO_BA_all.append(RVO_BA)                
+                RVO_BA_all.append(RVO_BA)
+        # compute RVO for each obstacle           
         for hole in ws_model['circular_obstacles']:
             # hole = [x, y, rad]
             vB = [0, 0]
@@ -76,8 +78,8 @@ def RVO_update(X, V_des, V_current, ws_model):
 
 
 def intersect(pA, vA, RVO_BA_all):
-    # print '----------------------------------------'
-    # print 'Start intersection test'
+    print('----------------------------------------')
+    print('Start intersection test')
     norm_v = distance(vA, [0, 0])
     suitable_V = []
     unsuitable_V = []
@@ -119,7 +121,7 @@ def intersect(pA, vA, RVO_BA_all):
         unsuitable_V.append(new_v)
     #----------------------        
     if suitable_V:
-        # print 'Suitable found'
+        print('Suitable found')
         vA_post = min(suitable_V, key = lambda v: distance(v, vA))
         new_v = vA_post[:]
         for RVO_BA in RVO_BA_all:
@@ -131,7 +133,7 @@ def intersect(pA, vA, RVO_BA_all):
             theta_right = atan2(right[1], right[0])
             theta_left = atan2(left[1], left[0])
     else:
-        # print 'Suitable not found'
+        print('Suitable not found')
         tc_V = dict()
         for unsuit_v in unsuitable_V:
             tc_V[tuple(unsuit_v)] = 0
@@ -186,6 +188,8 @@ def in_between(theta_right, theta_dif, theta_left):
                 return False
 
 def compute_V_des(X, goal, V_max):
+    print('----------------------------------------')
+    print('Start compute desired velocity')
     V_des = []
     for i in range(len(X)):
         dif_x = [goal[i][k]-X[i][k] for k in range(2)]

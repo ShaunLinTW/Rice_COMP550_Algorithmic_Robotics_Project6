@@ -55,8 +55,12 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
                 fontsize=20, fontweight ='bold')                
     # ---set axes ---
     ax.set_aspect('equal')
-    ax.set_xlim(-1.0, 6.0)
-    ax.set_ylim(-1.0, 6.0)
+    # set map size 5m by 5m
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    # set map size 7m by 7m
+    # ax.set_xlim(-1.0, 6.0)
+    # ax.set_ylim(-1.0, 6.0)
     ax.set_xlabel(r'$x (m)$')
     ax.set_ylabel(r'$y (m)$')
     ax.grid(True)
