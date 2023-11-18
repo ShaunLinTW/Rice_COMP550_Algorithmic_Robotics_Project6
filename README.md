@@ -12,11 +12,19 @@
 -----
 Simulation
 -----
-No obstacles
+No obstacles with 2 robots
 
 
 <p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles.gif" width="800"/>
+  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_2_bots.gif" width="800"/>
+</p>
+
+
+No obstacles with 14 robots
+
+
+<p align="center">  
+  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_14_bots.gif" width="800"/>
 </p>
 
 
