@@ -52,7 +52,8 @@ def RVO_update(X, V_des, V_current, ws_model):
                 # transl_vB_vA = [pA[0]+vB[0]+cos(theta_ort_left)*dist_dif, pA[1]+vB[1]+sin(theta_ort_left)*dist_dif]
                 RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, 2*ROB_RAD]
                 RVO_BA_all.append(RVO_BA)
-        # compute RVO for each obstacle           
+
+        # compute RVO for each circular obstacle           
         for hole in ws_model['circular_obstacles']:
             # hole = [x, y, rad]
             vB = [0, 0]
@@ -61,8 +62,9 @@ def RVO_update(X, V_des, V_current, ws_model):
             dist_BA = distance(pA, pB)
             theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
             # over-approximation of square to circular
-            OVER_APPROX_C2S = 1.5
+            OVER_APPROX_C2S = 1.05
             rad = hole[2]*OVER_APPROX_C2S
+            # print('rad', rad)
             if (rad+ROB_RAD) > dist_BA:
                 dist_BA = rad+ROB_RAD
             theta_BAort = asin((rad+ROB_RAD)/dist_BA)
@@ -72,6 +74,7 @@ def RVO_update(X, V_des, V_current, ws_model):
             bound_right = [cos(theta_ort_right), sin(theta_ort_right)]
             RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, rad+ROB_RAD]
             RVO_BA_all.append(RVO_BA)
+        
         vA_post = intersect(pA, V_des[i], RVO_BA_all)
         V_opt[i] = vA_post[:]
     return V_opt

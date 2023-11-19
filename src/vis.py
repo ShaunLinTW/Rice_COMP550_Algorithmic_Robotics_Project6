@@ -15,24 +15,70 @@ from matplotlib.patches import Polygon
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
 
+import pygame
+
 from math import pi as PI
 from math import atan2, sin, cos, sqrt
 
 
+def pygame_visualize(ws_model, X, U, goal, time = None, name=None):
+    
+    # Initialize Pygame
+    pygame.init()
+    # set map size 7m by 7m
+    screen = pygame.display.set_mode((700,700))
+    clock = pygame.time.Clock()
+    outlineThickness = 2
 
+    # Draw obstacles
+    # [1.4, 3.5, 0.3, 0.3]
+    # [2.8, 3.5, 0.3, 0.3]
+    # [4.2, 3.5, 0.3, 0.3]
+    # [5.6, 3.5, 0.3, 0.3]
+    for hole in ws_model['circular_obstacles']:
+        pygame.draw.rect(screen, (0,0,255), ((hole[0]-hole[2])*100, (hole[1]-hole[2])*100, 100*hole[2], 100*hole[2]), outlineThickness)
+    # pygame.draw.rect(screen, (255,0,0), (1.0, 1.0, 10.0, 10.0), outlineThickness)
+    # pygame.draw.rect(screen, (0,255,0), (100.0, 100.0, 10.0, 10.0), outlineThickness)
+    # pygame.draw.rect(screen, (255,0,0), (200.0, 200.0, 10.0, 10.0), outlineThickness)
+    # pygame.draw.rect(screen, (0,255,0), (300.0, 300.0, 10.0, 10.0), outlineThickness)
+    # pygame.draw.rect(screen, (0,0,255), (400.0, 400.0, 10.0, 10.0), outlineThickness)
+    # pygame.draw.rect(screen, (0,255,0), (500.0, 500.0, 10.0, 10.0), outlineThickness)
+    # pygame.draw.rect(screen, (255,0,0), (590.0, 590.0, 10.0, 10.0), outlineThickness)
+
+
+    # Draw robots
+    # for i in range(len(X)):
+    #     pygame.draw.circle(screen, (0,0,0), (X[i][0], X[i][1]), ws_model['robot_radius'])
+    #     pygame.draw.line(screen, (0,0,0), (X[i][0], X[i][1]), (X[i][0] + U[i][0], X[i][1] + U[i][1]))
+    #     pygame.draw.circle(screen, (0,255,0), (goal[i][0], goal[i][1]), 10)
+
+    # Update display        
+    pygame.display.flip()
+
+    # Control frame rate
+    clock.tick(30)
+
+# ws_model is the workspace model
+# X is the position of the robot
+# U is the velocity of the robot
+# goal is the goal of the robot
+# time is the time of the simulation
+# name is the name of the file
 def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
     figure = pyplot.figure()
     ax = figure.add_subplot(1,1,1)
     cmap = get_cmap(len(X))
-    # plot obstacles
+    # plot circular obstacles
     for hole in ws_model['circular_obstacles']:
+        # maptplotlib.patches.Rectangle((x,y),width,height)
         srec = matplotlib.patches.Rectangle(
                 (hole[0]-hole[2], hole[1]-hole[2]),
                 2*hole[2], 2*hole[2],
-                facecolor= 'red',
+                facecolor= 'blue',
                 fill = True,
                 alpha=1)
         ax.add_patch(srec)
+
     # ---plot traj---
     for i in range(0,len(X)):
         #-------plot car
@@ -56,11 +102,11 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
     # ---set axes ---
     ax.set_aspect('equal')
     # set map size 5m by 5m
-    ax.set_xlim(0, 5)
-    ax.set_ylim(0, 5)
+    # ax.set_xlim(0, 5)
+    # ax.set_ylim(0, 5)
     # set map size 7m by 7m
-    # ax.set_xlim(-1.0, 6.0)
-    # ax.set_ylim(-1.0, 6.0)
+    ax.set_xlim(0.0, 7.0)
+    ax.set_ylim(0.0, 7.0)
     ax.set_xlabel(r'$x (m)$')
     ax.set_ylabel(r'$y (m)$')
     ax.grid(True)
