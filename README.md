@@ -48,7 +48,23 @@ with obstacles 2 robots in narrow passage
 
 
 <p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_narrow_passage_2_bots(1.0_OverApprox).gif" width="400"/>
+  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_narrow_passage_2_bots(fixed_wall_collision)(1.1_OverApprox).gif" width="400"/>
+</p>
+
+
+With obstacles with 2 robots in short narrow passage
+
+
+<p align="center">  
+  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_narrow_passage_successed.gif" width="400"/>
+</p>
+
+
+With obstacles with 4 robots in H-maze
+
+
+<p align="center">  
+  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_H-maze.gif" width="400"/>
 </p>
 
 
