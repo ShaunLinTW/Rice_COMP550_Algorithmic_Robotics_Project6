@@ -68,8 +68,8 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
     figure = pyplot.figure()
     ax = figure.add_subplot(1,1,1)
     cmap = get_cmap(len(X))
-    # plot circular obstacles
-    for hole in ws_model['circular_obstacles']:
+    # plot square obstacles
+    for hole in ws_model['square_obstacles']:
         # maptplotlib.patches.Rectangle((x,y),width,height)
         srec = matplotlib.patches.Rectangle(
                 (hole[0]-hole[2], hole[1]-hole[2]),
@@ -78,6 +78,25 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
                 fill = True,
                 alpha=1)
         ax.add_patch(srec)
+
+    # plot circular obstacles
+    for hole in ws_model['circular_obstacles']:
+        # maptplotlib.patches.Rectangle((x,y),width,height)
+        # srec = matplotlib.patches.Rectangle(
+        #         (hole[0]-hole[2], hole[1]-hole[2]),
+        #         2*hole[2], 2*hole[2],
+        #         facecolor= 'blue',
+        #         fill = True,
+        #         alpha=1)
+        # ax.add_patch(srec)
+        # maptplotlib.patches.Circle((x,y),radius)
+        circle = matplotlib.patches.Circle(
+                (hole[0], hole[1]),
+                radius = hole[2],
+                facecolor= 'red',
+                fill = True,
+                alpha=1)
+        ax.add_patch(circle)
 
     # ---plot traj---
     for i in range(0,len(X)):
@@ -110,8 +129,11 @@ def visualize_traj_dynamic(ws_model, X, U, goal, time = None, name=None):
     ax.set_xlabel(r'$x (m)$')
     ax.set_ylabel(r'$y (m)$')
     ax.grid(True)
+    # show
+    # pyplot.show()
     if name:
         pyplot.savefig(name, dpi = 200)
+        print("saved to ", name)
         #pyplot.savefig(name,bbox_inches='tight')
     pyplot.cla()
     pyplot.close(figure)
@@ -124,3 +146,81 @@ def get_cmap(N):
     def map_index_to_rgb_color(index):
         return scalar_map.to_rgba(index)
     return map_index_to_rgb_color    
+
+# visualize circles on square obstacle's edge
+# if __name__ == '__main__':
+#     #define workspace model
+#     ws_model = dict()
+#     #robot radius
+#     ws_model['robot_radius'] = 0.2
+#     #circular obstacles, format [x,y,rad]
+#     #---no obstacles---#
+#     ws_model['circular_obstacles'] = []
+#     #---with obstacles---#
+#     # [0, 3.5, 2.8]
+#     # [7, 3.5, 2.8]
+#     # ws_model['square_obstacles'] = [[0, 3.5, 2.8], [7, 3.5, 2.8]]
+#     #---with obstacles---#
+#     # [1.4, 3.5, 0.3]
+#     # [2.8, 3.5, 0.3]
+#     # [4.2, 3.5, 0.3]
+#     # [5.6, 3.5, 0.3]
+#     ws_model['square_obstacles'] = [[1.4, 3.5, 0.3], [2.8, 3.5, 0.3], [4.2, 3.5, 0.3], [5.6, 3.5, 0.3]]
+#     #---with obstacles---#
+#     # [3.5, 10.2, 4]
+#     # [0, 5.5, 0.7]
+#     # [7, 5.5, 0.7]
+#     # [1, 3.5, 1.5]
+#     # [6, 3.5, 1.5]
+#     # [0, 1.5, 0.7]
+#     # [7, 1.5, 0.7]
+#     # [3.5, -3.2, 4]
+#     # ws_model['square_obstacles'] = [[3.5, 10.2, 4], [0, 5.5, 0.7], [7, 5.5, 0.7], [1, 3.5, 1.5], [6, 3.5, 1.5], [0, 1.5, 0.7], [7, 1.5, 0.7], [3.5, -3.2, 4]]
+#     # implement circles around edge for square obstacles
+
+#     for square in ws_model['square_obstacles']:
+#         radius = square[2] * 0.1
+#         # in the square, the number of circles in a row
+#         num_circles = int(square[2] / radius)
+#         print("num_circles: ", num_circles)
+#         # the distance between the center of two circles
+#         distance = (square[2]) / (num_circles/2)
+#         # Top and bottom edges
+#         for i in range(num_circles):
+#             # top edge
+#             x = square[0] - square[2] + radius + i * distance
+#             y = square[1] + square[2] - radius
+#             ws_model['circular_obstacles'].append([x, y, radius])
+
+#             # bottom edge
+#             x = square[0] + square[2] - radius - i * distance
+#             y = square[1] - square[2] + radius
+#             ws_model['circular_obstacles'].append([x, y, radius])
+#         # Left and right edges
+#         for i in range(num_circles):
+#             # left edge
+#             x = square[0] - square[2] + radius
+#             y = square[1] - square[2] + radius + i * distance
+#             ws_model['circular_obstacles'].append([x, y, radius])
+#             # right edge
+#             x = square[0] + square[2] - radius
+#             y = square[1] + square[2] - radius - i * distance
+#             ws_model['circular_obstacles'].append([x, y, radius])
+#         # print total number of circles
+#     print("total circles: ", len(ws_model['circular_obstacles']))
+
+#     # 2 robots with map size 7m by 7m
+#     X = [[3.5, 1.0], [3.5, 6.0]]
+#     # 4 robots with map size 7m by 7m, and in a H maze
+#     # X = [[1.5, 5.5], [5.5, 5.5], [1.5, 1.5], [5.5, 1.5]]
+
+#     # velocity of [vx,vy]
+#     V = [[0,0] for i in range(len(X))]
+#     # maximal velocity norm
+#     V_max = [1.0 for i in range(len(X))]
+#     # 2 robots with map size 7m by 7m
+#     goal = [[3.5, 6.0], [3.5, 1.0]]
+#     # 4 robots with map size 7m by 7m, and the goal of each robot is on the opposite side
+#     # goal = [[5.5, 1.5], [1.5, 1.5], [5.5, 5.5], [1.5, 5.5]]
+
+#     visualize_traj_dynamic(ws_model, X, V, goal, time = None, name=None)

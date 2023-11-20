@@ -23,7 +23,7 @@ def distance(pose1, pose2):
 
 def RVO_update(X, V_des, V_current, ws_model):
     """ compute best velocity given the desired velocity, current velocity and workspace model"""
-    ROB_RAD = ws_model['robot_radius']+0.1
+    ROB_RAD = ws_model['robot_radius'] + 0.02 # add 0.001 to avoid collision
     V_opt = list(V_current)    
     for i in range(len(X)):
         vA = [V_current[i][0], V_current[i][1]]
@@ -47,9 +47,7 @@ def RVO_update(X, V_des, V_current, ws_model):
                 bound_left = [cos(theta_ort_left), sin(theta_ort_left)]
                 theta_ort_right = theta_BA-theta_BAort
                 bound_right = [cos(theta_ort_right), sin(theta_ort_right)]
-                # use HRVO
-                # dist_dif = distance([0.5*(vB[0]-vA[0]),0.5*(vB[1]-vA[1])],[0,0])
-                # transl_vB_vA = [pA[0]+vB[0]+cos(theta_ort_left)*dist_dif, pA[1]+vB[1]+sin(theta_ort_left)*dist_dif]
+                
                 RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, 2*ROB_RAD]
                 RVO_BA_all.append(RVO_BA)
 
@@ -63,8 +61,9 @@ def RVO_update(X, V_des, V_current, ws_model):
             theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
             # over-approximation of square to circular
             OVER_APPROX_C2S = 1.05
+            # rad is the radius of the square that over-approximate the circular obstacle
             rad = hole[2]*OVER_APPROX_C2S
-            # print('rad', rad)
+            # if the robot is inside the circular obstacle, then the robot should not move
             if (rad+ROB_RAD) > dist_BA:
                 dist_BA = rad+ROB_RAD
             theta_BAort = asin((rad+ROB_RAD)/dist_BA)
@@ -74,15 +73,83 @@ def RVO_update(X, V_des, V_current, ws_model):
             bound_right = [cos(theta_ort_right), sin(theta_ort_right)]
             RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, rad+ROB_RAD]
             RVO_BA_all.append(RVO_BA)
+
+        # compute RVO for each square obstacle
+        for square in ws_model['square_obstacles']:
+            # square = [x, y, radius]
+            # make square obstacle as obstacles that filled in with group of many tiny circular obstacles
+            # the distance between each tiny circular obstacle's center is 0.1*square[2]
+            # the radius of each tiny circular obstacle is 0.1*square[2]
+            # We can use Circle packing in a square to compute the number of tiny circular obstacles inside the square obstacle
+            # Therefore, the number of tiny circular obstacles is ceil(PI/(asin(0.1*square[2]/square[2]))**2)
+            RVO_BA_all = compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all)
+            # compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all)
+
         
         vA_post = intersect(pA, V_des[i], RVO_BA_all)
         V_opt[i] = vA_post[:]
     return V_opt
 
+def compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all):
+
+    circles = []
+    
+    # implement circles around edge for square obstacles
+    radius = square[2]*0.1
+    # in the square, the number of circles in a row
+    num_circles = int(square[2] / (radius))
+    # the distance between the center of two circles
+    tiny_circle_distance = square[2] / (num_circles/2)
+    # Top and bottom edges
+    for i in range(num_circles):
+        # top edge
+        x = square[0] - square[2] + radius + i * tiny_circle_distance
+        y = square[1] + square[2] - radius
+        circles.append([x, y, radius])
+
+        # bottom edge
+        x = square[0] + square[2] - radius - i * tiny_circle_distance
+        y = square[1] - square[2] + radius
+        circles.append([x, y, radius])
+    # Left and right edges
+    for i in range(num_circles):
+        # left edge
+        x = square[0] - square[2] + radius
+        y = square[1] - square[2] + radius + i * tiny_circle_distance
+        circles.append([x, y, radius])
+        # right edge
+        x = square[0] + square[2] - radius
+        y = square[1] + square[2] - radius - i * tiny_circle_distance
+        circles.append([x, y, radius])
+
+    # Compute RVO for each circle 
+    for circle in circles:
+        vB = [0, 0]
+        pB = circle[0:2]
+        # Same computations as before
+        transl_vB_vA = [pA[0]+vB[0], pA[1]+vB[1]]
+        dist_BA = distance(pA, pB)
+        theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
+        # over-approximation of circular
+        OVER_APPROX_C2S = 1.1
+        rad = circle[2]*OVER_APPROX_C2S
+        # if the robot is inside the circular obstacle, then the robot should not move
+        if (rad+ROB_RAD) > dist_BA:
+            dist_BA = rad+ROB_RAD
+        theta_BAort = asin((rad+ROB_RAD)/dist_BA)
+        theta_ort_left = theta_BA+theta_BAort
+        bound_left = [cos(theta_ort_left), sin(theta_ort_left)]
+        theta_ort_right = theta_BA-theta_BAort
+        bound_right = [cos(theta_ort_right), sin(theta_ort_right)]
+        RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, rad+ROB_RAD]
+        RVO_BA_all.append(RVO_BA)
+
+    return RVO_BA_all
+
 
 def intersect(pA, vA, RVO_BA_all):
-    print('----------------------------------------')
-    print('Start intersection test')
+    # print('----------------------------------------')
+    # print('Start intersection test')
     norm_v = distance(vA, [0, 0])
     suitable_V = []
     unsuitable_V = []
@@ -124,7 +191,7 @@ def intersect(pA, vA, RVO_BA_all):
         unsuitable_V.append(new_v)
     #----------------------        
     if suitable_V:
-        print('Suitable found')
+        # print('Suitable found')
         vA_post = min(suitable_V, key = lambda v: distance(v, vA))
         new_v = vA_post[:]
         for RVO_BA in RVO_BA_all:
@@ -136,7 +203,7 @@ def intersect(pA, vA, RVO_BA_all):
             theta_right = atan2(right[1], right[0])
             theta_left = atan2(left[1], left[0])
     else:
-        print('Suitable not found')
+        # print('Suitable not found')
         tc_V = dict()
         for unsuit_v in unsuitable_V:
             tc_V[tuple(unsuit_v)] = 0
@@ -191,8 +258,8 @@ def in_between(theta_right, theta_dif, theta_left):
                 return False
 
 def compute_V_des(X, goal, V_max):
-    print('----------------------------------------')
-    print('Start compute desired velocity')
+    # print('----------------------------------------')
+    # print('Start compute desired velocity')
     V_des = []
     for i in range(len(X)):
         dif_x = [goal[i][k]-X[i][k] for k in range(2)]
