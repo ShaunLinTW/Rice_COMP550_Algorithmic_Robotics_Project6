@@ -23,7 +23,7 @@ def distance(pose1, pose2):
 
 def RVO_update(X, V_des, V_current, ws_model):
     """ compute best velocity given the desired velocity, current velocity and workspace model"""
-    ROB_RAD = ws_model['robot_radius'] + 0.02 # add 0.001 to avoid collision
+    ROB_RAD = ws_model['robot_radius'] + 0.02 # add 0.02 to avoid collision
     V_opt = list(V_current)    
     for i in range(len(X)):
         vA = [V_current[i][0], V_current[i][1]]
@@ -59,9 +59,9 @@ def RVO_update(X, V_des, V_current, ws_model):
             transl_vB_vA = [pA[0]+vB[0], pA[1]+vB[1]]
             dist_BA = distance(pA, pB)
             theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
-            # over-approximation of square to circular
+            # over-approximation of circular outline
             OVER_APPROX_C2S = 1.05
-            # rad is the radius of the square that over-approximate the circular obstacle
+            # rad is the radius of the over-approximate the circular obstacle
             rad = hole[2]*OVER_APPROX_C2S
             # if the robot is inside the circular obstacle, then the robot should not move
             if (rad+ROB_RAD) > dist_BA:
@@ -76,14 +76,7 @@ def RVO_update(X, V_des, V_current, ws_model):
 
         # compute RVO for each square obstacle
         for square in ws_model['square_obstacles']:
-            # square = [x, y, radius]
-            # make square obstacle as obstacles that filled in with group of many tiny circular obstacles
-            # the distance between each tiny circular obstacle's center is 0.1*square[2]
-            # the radius of each tiny circular obstacle is 0.1*square[2]
-            # We can use Circle packing in a square to compute the number of tiny circular obstacles inside the square obstacle
-            # Therefore, the number of tiny circular obstacles is ceil(PI/(asin(0.1*square[2]/square[2]))**2)
-            RVO_BA_all = compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all)
-            # compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all)
+            compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all)
 
         
         vA_post = intersect(pA, V_des[i], RVO_BA_all)
@@ -143,8 +136,6 @@ def compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all):
         bound_right = [cos(theta_ort_right), sin(theta_ort_right)]
         RVO_BA = [transl_vB_vA, bound_left, bound_right, dist_BA, rad+ROB_RAD]
         RVO_BA_all.append(RVO_BA)
-
-    return RVO_BA_all
 
 
 def intersect(pA, vA, RVO_BA_all):
