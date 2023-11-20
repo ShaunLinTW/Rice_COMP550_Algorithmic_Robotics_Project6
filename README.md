@@ -12,6 +12,16 @@
 -----
 Simulation
 -----
+
+
+No obstacles with 100 robots with speed=2
+
+
+<p align="center">  
+  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_100_bots (speed=2).gif" width="400"/>
+</p>
+
+
 No obstacles with 2 robots
 
 
