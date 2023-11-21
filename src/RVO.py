@@ -23,7 +23,7 @@ def distance(pose1, pose2):
 
 def RVO_update(X, V_des, V_current, ws_model):
     """ compute best velocity given the desired velocity, current velocity and workspace model"""
-    ROB_RAD = ws_model['robot_radius'] + 0.02 # add 0.02 to avoid collision
+    ROB_RAD = ws_model['robot_radius'] + 0.1 # add 0.02 to avoid collision
     V_opt = list(V_current)    
     for i in range(len(X)):
         vA = [V_current[i][0], V_current[i][1]]
@@ -138,16 +138,10 @@ def compute_RVO_square(pA, ROB_RAD, square, RVO_BA_all):
         RVO_BA_all.append(RVO_BA)
 
 def dir_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v):
-    # print("Run dir_pri")
     for theta in numpy.arange(0, PI, 0.1):
-        # print(1)
         for cur_theta in [theta_v+theta, theta_v-theta]:
-            # print(2)
-            # print(norm_v)
             for vel_step in numpy.arange(0, norm_v, norm_v/5.0):
-                # print(3)
                 for cur_vel in [norm_v+vel_step, norm_v-vel_step]:
-                    # print(4)
                     new_v = [cur_vel*cos(cur_theta), cur_vel*sin(cur_theta)]
                     suit = True
                     for RVO_BA in RVO_BA_all:
@@ -162,11 +156,34 @@ def dir_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v):
                             suit = False
                             break
                     if suit:
-                        # print(f"suit! append {new_v}")
                         suitable_V.append(new_v)
                         return new_v
                     else:
-                        # print(f"unsuit! append {new_v}")
+                        unsuitable_V.append(new_v)
+    return None
+
+def vel_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v):
+    for vel_step in numpy.arange(0, norm_v, norm_v/5.0):
+        for cur_vel in [norm_v+vel_step, norm_v-vel_step]:
+            for theta in numpy.arange(0, PI, 0.1):
+                for cur_theta in [theta_v+theta, theta_v-theta]:
+                    new_v = [cur_vel*cos(cur_theta), cur_vel*sin(cur_theta)]
+                    suit = True
+                    for RVO_BA in RVO_BA_all:
+                        p_0 = RVO_BA[0]
+                        left = RVO_BA[1]
+                        right = RVO_BA[2]
+                        dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+                        theta_dif = atan2(dif[1], dif[0])
+                        theta_right = atan2(right[1], right[0])
+                        theta_left = atan2(left[1], left[0])
+                        if in_between(theta_right, theta_dif, theta_left):
+                            suit = False
+                            break
+                    if suit:
+                        suitable_V.append(new_v)
+                        return new_v
+                    else:
                         unsuitable_V.append(new_v)
     return None
 
@@ -177,68 +194,25 @@ def intersect(pA, vA, RVO_BA_all):
     theta_v = atan2(vA[1], vA[0])
     suitable_V = []
     unsuitable_V = []
+    # --------------using prioritized direction to generate velocities----------------
+    # dir_pri_ans = dir_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v)
+    # if suitable_V:
+    #     print('Suitable found')
+    #     # for round research
+    #     # for dir pri
+    #     vA_post = dir_pri_ans[:]
     # --------------------------------------------------------------------------------
-    dir_pri_ans = dir_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v)
-    print(dir_pri_ans)
-    print(suitable_V)
-    print(unsuitable_V)
+
+    # ---------------using prioritized velocity to generate velocities----------------
+    vel_pri_ans = vel_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v)
     if suitable_V:
         print('Suitable found')
         # for round research
-        # for dir pri
-        vA_post = dir_pri_ans[:]
-    # using prioritized direction to generate velocities
-    # for theta in numpy.arange(0, PI, 0.1):
-    #     for cur_theta in [theta_v+theta, theta_v-theta]:
-    #         for vel_step in numpy.arange(0, norm_v-0.02, 0.02):
-    #             for cur_vel in [norm_v+vel_step, norm_v-vel_step]:
-    #                 new_v = [cur_vel*cos(cur_theta), cur_vel*sin(cur_theta)]
-    #                 suit = True
-    #                 for RVO_BA in RVO_BA_all:
-    #                     p_0 = RVO_BA[0]
-    #                     left = RVO_BA[1]
-    #                     right = RVO_BA[2]
-    #                     dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
-    #                     theta_dif = atan2(dif[1], dif[0])
-    #                     theta_right = atan2(right[1], right[0])
-    #                     theta_left = atan2(left[1], left[0])
-    #                     if in_between(theta_right, theta_dif, theta_left):
-    #                         suit = False
-    #                         break
-    #                 if suit:
-    #                     suitable_V.append(new_v)
-    #                 else:
-    #                     unsuitable_V.append(new_v)
-                    
+        # for vel pri
+        vA_post = vel_pri_ans[:]
     # --------------------------------------------------------------------------------
 
-    # --------------------------------------------------------------------------------
-    # using prioritized velocity to generate velocities
-    # for vel_step in numpy.arange(0, norm_v-0.02, 0.02):
-    #     for cur_vel in [norm_v+vel_step, norm_v-vel_step]:
-    #         for theta in numpy.arange(0, PI, 0.1):
-    #             for cur_theta in [theta_v+theta, theta_v-theta]:
-    #                 new_v = [cur_vel*cos(cur_theta), cur_vel*sin(cur_theta)]
-    #                 suit = True
-    #                 for RVO_BA in RVO_BA_all:
-    #                     p_0 = RVO_BA[0]
-    #                     left = RVO_BA[1]
-    #                     right = RVO_BA[2]
-    #                     dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
-    #                     theta_dif = atan2(dif[1], dif[0])
-    #                     theta_right = atan2(right[1], right[0])
-    #                     theta_left = atan2(left[1], left[0])
-    #                     if in_between(theta_right, theta_dif, theta_left):
-    #                         suit = False
-    #                         break
-    #                 if suit:
-    #                     suitable_V.append(new_v)
-    #                 else:
-    #                     unsuitable_V.append(new_v)
-    # --------------------------------------------------------------------------------
-
-    # --------------------------------------------------------------------------------
-    # using polar coordinates to generate velocities
+    # ---------------using polar coordinates to generate velocities-------------------
     # for theta in numpy.arange(0, 2*PI, 0.1):
     #     for rad in numpy.arange(0.02, norm_v+0.02, norm_v/5.0):
     #         new_v = [rad*cos(theta), rad*sin(theta)]

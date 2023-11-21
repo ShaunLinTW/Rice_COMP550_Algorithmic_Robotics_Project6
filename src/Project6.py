@@ -20,19 +20,22 @@ ws_model = dict()
 #robot radius
 ws_model['robot_radius'] = 0.2
 
-#circular obstacles, format [x,y,rad]
+#-------------circular obstacles, format [x,y,rad]-------------
 #---no obstacles---#
 ws_model['circular_obstacles'] = []
 
 #---with obstacles---#
+# in the 7m by 7m map, structre a narrow passage with circular obstacles
+# [0, 3.5, 3]
+# [7, 3.5, 3]
+# ws_model['circular_obstacles'] = [[0, 3.5, 3], [7, 3.5, 3]]
+# in the center of 7m by 7m map, place 4 circular obstacles in a line
 # [1.4, 3.5, 0.3]
 # [2.8, 3.5, 0.3]
 # [4.2, 3.5, 0.3]
 # [5.6, 3.5, 0.3]
 # ws_model['circular_obstacles'] = [[1.4, 3.5, 0.3], [2.8, 3.5, 0.3], [4.2, 3.5, 0.3], [5.6, 3.5, 0.3]]
-# [0, 3.5, 3]
-# [7, 3.5, 3]
-# ws_model['circular_obstacles'] = [[0, 3.5, 3], [7, 3.5, 3]]
+# in the 7m by 7m map, structure a H maze with circular obstacles
 # [3.5, 10.2, 4]
 # [0, 5.5, 0.7]
 # [7, 5.5, 0.7]
@@ -43,24 +46,25 @@ ws_model['circular_obstacles'] = []
 # [3.5, -3.2, 4]
 # ws_model['circular_obstacles'] = [[3.5, 10.2, 4], [0, 5.5, 0.7], [7, 5.5, 0.7], [1, 3.5, 1.5], [6, 3.5, 1.5], [0, 1.5, 0.7], [7, 1.5, 0.7], [3.5, -3.2, 4]]
 
-#square obstacles, format [x,y,rad]
+#-------------square obstacles, format [x,y,rad]-------------
 #---no obstacles---#
 # ws_model['square_obstacles'] = []
 
 #---with obstacles---#
+# in the center of 7m by 7m map, place a square obstacle
 # [3.5, 3.5, 1.0]
 # ws_model['square_obstacles'] = [[3.5, 3.5, 1.0]]
-#---with obstacles---#
+# in the 7m by 7m map, structre a narrow passage
 # [0, 3.5, 2.8]
 # [7, 3.5, 2.8]
 # ws_model['square_obstacles'] = [[0, 3.5, 2.8], [7, 3.5, 2.8]]
-#---with obstacles---#
+# in the center of 7m by 7m map, place 4 square obstacles in a line
 # [1.4, 3.5, 0.3]
 # [2.8, 3.5, 0.3]
 # [4.2, 3.5, 0.3]
 # [5.6, 3.5, 0.3]
 # ws_model['square_obstacles'] = [[1.4, 3.5, 0.3], [2.8, 3.5, 0.3], [4.2, 3.5, 0.3], [5.6, 3.5, 0.3]]
-#---with obstacles---#
+# in the 7m by 7m map, structure a H maze
 # [3.5, 10.2, 4]
 # [0, 5.5, 0.7]
 # [7, 5.5, 0.7]
@@ -70,6 +74,15 @@ ws_model['circular_obstacles'] = []
 # [7, 1.5, 0.7]
 # [3.5, -3.2, 4]
 ws_model['square_obstacles'] = [[3.5, 10.2, 4], [0, 5.5, 0.7], [7, 5.5, 0.7], [1.3, 3.5, 1.5], [5.7, 3.5, 1.5], [0, 1.5, 0.7], [7, 1.5, 0.7], [3.5, -3.2, 4]]
+# in the center of 30m by 30m map, place a square obstacle
+# [15.0, 15.0, 3.0]
+# ws_model['square_obstacles'] = [[15.0, 15.0, 3.0]]
+# in the center of 30m by 30m map, place 4 square obstacles
+# [10, 10, 3.0]
+# [20, 10, 3.0]
+# [10, 20, 3.0]
+# [20, 20, 3.0]
+# ws_model['square_obstacles'] = [[10, 10, 3.0], [20, 10, 3.0], [10, 20, 3.0], [20, 20, 3.0]]
 
 ws_model['boundary'] = []
 
@@ -95,7 +108,7 @@ X = [[1.5, 5.5], [5.5, 5.5], [1.5, 1.5], [5.5, 1.5]]
 V = [[0,0] for i in range(len(X))]
 # maximal velocity norm
 # default velocity is 1.0
-V_max = [1.0 for i in range(len(X))]
+V_max = [2 for i in range(len(X))]
 
 # goal of [x,y]
 # 2 robots with map size 7m by 7m
