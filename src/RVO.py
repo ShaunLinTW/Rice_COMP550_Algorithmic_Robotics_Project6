@@ -204,64 +204,64 @@ def intersect(pA, vA, RVO_BA_all):
     # --------------------------------------------------------------------------------
 
     # ---------------using prioritized velocity to generate velocities----------------
-    vel_pri_ans = vel_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v)
-    if suitable_V:
-        print('Suitable found')
-        # for round research
-        # for vel pri
-        vA_post = vel_pri_ans[:]
+    # vel_pri_ans = vel_pri(pA, vA, RVO_BA_all, suitable_V, unsuitable_V, theta_v, norm_v)
+    # if suitable_V:
+    #     print('Suitable found')
+    #     # for round research
+    #     # for vel pri
+    #     vA_post = vel_pri_ans[:]
     # --------------------------------------------------------------------------------
 
     # ---------------using polar coordinates to generate velocities-------------------
-    # for theta in numpy.arange(0, 2*PI, 0.1):
-    #     for rad in numpy.arange(0.02, norm_v+0.02, norm_v/5.0):
-    #         new_v = [rad*cos(theta), rad*sin(theta)]
-    #         suit = True
-    #         for RVO_BA in RVO_BA_all:
-    #             p_0 = RVO_BA[0]
-    #             left = RVO_BA[1]
-    #             right = RVO_BA[2]
-    #             dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
-    #             theta_dif = atan2(dif[1], dif[0])
-    #             theta_right = atan2(right[1], right[0])
-    #             theta_left = atan2(left[1], left[0])
-    #             if in_between(theta_right, theta_dif, theta_left):
-    #                 suit = False
-    #                 break
-    #         if suit:
-    #             suitable_V.append(new_v)
-    #         else:
-    #             unsuitable_V.append(new_v)                
-    # new_v = vA[:]
-    # suit = True
-    # for RVO_BA in RVO_BA_all:                
-    #     p_0 = RVO_BA[0]
-    #     left = RVO_BA[1]
-    #     right = RVO_BA[2]
-    #     dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
-    #     theta_dif = atan2(dif[1], dif[0])
-    #     theta_right = atan2(right[1], right[0])
-    #     theta_left = atan2(left[1], left[0])
-    #     if in_between(theta_right, theta_dif, theta_left):
-    #         suit = False
-    #         break
-    # if suit:
-    #     suitable_V.append(new_v)
-    # else:
-    #     unsuitable_V.append(new_v)
+    for theta in numpy.arange(0, 2*PI, 0.1):
+        for rad in numpy.arange(0.02, norm_v+0.02, norm_v/5.0):
+            new_v = [rad*cos(theta), rad*sin(theta)]
+            suit = True
+            for RVO_BA in RVO_BA_all:
+                p_0 = RVO_BA[0]
+                left = RVO_BA[1]
+                right = RVO_BA[2]
+                dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+                theta_dif = atan2(dif[1], dif[0])
+                theta_right = atan2(right[1], right[0])
+                theta_left = atan2(left[1], left[0])
+                if in_between(theta_right, theta_dif, theta_left):
+                    suit = False
+                    break
+            if suit:
+                suitable_V.append(new_v)
+            else:
+                unsuitable_V.append(new_v)                
+    new_v = vA[:]
+    suit = True
+    for RVO_BA in RVO_BA_all:                
+        p_0 = RVO_BA[0]
+        left = RVO_BA[1]
+        right = RVO_BA[2]
+        dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+        theta_dif = atan2(dif[1], dif[0])
+        theta_right = atan2(right[1], right[0])
+        theta_left = atan2(left[1], left[0])
+        if in_between(theta_right, theta_dif, theta_left):
+            suit = False
+            break
+    if suit:
+        suitable_V.append(new_v)
+    else:
+        unsuitable_V.append(new_v)
 
-    # if suitable_V:
-    #     print('Suitable found')
-    #     vA_post = min(suitable_V, key = lambda v: distance(v, vA))
-    #     new_v = vA_post[:]
-    #     for RVO_BA in RVO_BA_all:
-    #         p_0 = RVO_BA[0]
-    #         left = RVO_BA[1]
-    #         right = RVO_BA[2]
-    #         dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
-    #         theta_dif = atan2(dif[1], dif[0])
-    #         theta_right = atan2(right[1], right[0])
-    #         theta_left = atan2(left[1], left[0])
+    if suitable_V:
+        print('Suitable found')
+        vA_post = min(suitable_V, key = lambda v: distance(v, vA))
+        new_v = vA_post[:]
+        for RVO_BA in RVO_BA_all:
+            p_0 = RVO_BA[0]
+            left = RVO_BA[1]
+            right = RVO_BA[2]
+            dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+            theta_dif = atan2(dif[1], dif[0])
+            theta_right = atan2(right[1], right[0])
+            theta_left = atan2(left[1], left[0])
     # --------------------------------------------------------------------------------
     else: # if there is no suitable velocity, then select the velocity with the minimum time to collision, the minimum time is the most dangerous
         print('Suitable not found')

@@ -108,7 +108,7 @@ X = [[1.5, 5.5], [5.5, 5.5], [1.5, 1.5], [5.5, 1.5]]
 V = [[0,0] for i in range(len(X))]
 # maximal velocity norm
 # default velocity is 1.0
-V_max = [2 for i in range(len(X))]
+V_max = [1 for i in range(len(X))]
 
 # goal of [x,y]
 # 2 robots with map size 7m by 7m
