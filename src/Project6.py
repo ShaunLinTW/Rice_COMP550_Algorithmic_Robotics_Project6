@@ -129,7 +129,7 @@ goal = [[5.5, 1.5], [1.5, 1.5], [5.5, 5.5], [1.5, 5.5]]
 #------------------------------
 #simulation setup
 # total simulation time (s)
-total_time = 20
+total_time = 30
 # simulation step
 step = 0.01
 

@@ -23,7 +23,7 @@ def distance(pose1, pose2):
 
 def RVO_update(X, V_des, V_current, ws_model):
     """ compute best velocity given the desired velocity, current velocity and workspace model"""
-    ROB_RAD = ws_model['robot_radius'] + 0.1 # add 0.02 to avoid collision
+    ROB_RAD = ws_model['robot_radius'] + 0.02 # add 0.02 to avoid collision
     V_opt = list(V_current)    
     for i in range(len(X)):
         vA = [V_current[i][0], V_current[i][1]]
