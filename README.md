@@ -12,69 +12,39 @@
 -----
 Simulation
 -----
+The main program accept two arguments: 
 
+map: name of the map, one of ["two", "14", "14ob"]
 
-No obstacles with 100 robots with speed=2
-
-
-<p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_100_bots (speed=2).gif" width="400"/>
-</p>
-
+method: use either round search, direction priority or velocity priority, one of ["round_s", "dir_pri", "vel_pri"]
 
 No obstacles with 2 robots
-
-
-<p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_2_bots.gif" width="400"/>
-</p>
-
-
-No obstacles with 8 robots in circle
-
+```
+python3 Project6_pygame.py two round_s
+```
 
 <p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_circle_8_bots.gif" width="400"/>
+  <img src="./visualization/two_round_s/Project6_no_obstacles.gif" width="800"/>
 </p>
 
 
 No obstacles with 14 robots
-
+```
+python3 Project6_pygame.py 14 round_s
+```
 
 <p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/no_obstacles/Project6_no_obstacles_14_bots.gif" width="400"/>
+  <img src="./visualization/14_round_s/Project6_no_obstacles.gif" width="800"/>
 </p>
 
 
-With obstacles with 14 robots
-
-
-<p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_14_bots.gif" width="400"/>
-</p>
-
-
-with obstacles 2 robots in narrow passage
-
+With obstacles
+```
+python3 Project6_pygame.py 14ob round_s
+```
 
 <p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_narrow_passage_2_bots(fixed_wall_collision)(1.1_OverApprox).gif" width="400"/>
-</p>
-
-
-With obstacles with 2 robots in short narrow passage
-
-
-<p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_narrow_passage_successed.gif" width="400"/>
-</p>
-
-
-With obstacles with 4 robots in H-maze
-
-
-<p align="center">  
-  <img src="https://github.com/ShaunLinTW/Rice_COMP550_Algorithmic_Robotics_Project6/blob/main/visualization/with_obstacles/Project6_with_obstacles_H-maze.gif" width="400"/>
+  <img src="./visualization/14ob_round_s/Project6_no_obstacles.gif" width="800"/>
 </p>
 
 

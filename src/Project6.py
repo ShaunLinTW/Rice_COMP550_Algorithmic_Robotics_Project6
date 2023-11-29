@@ -7,11 +7,10 @@
 '''
 
 import sys
-from math import cos, sin, tan, atan2, asin
-from math import pi as PI
 
-from RVO import RVO_update, reach, compute_V_des, reach
-from vis import visualize_traj_dynamic
+from RVO import RVO_update, compute_V_des
+from vis_original import visualize_traj_dynamic
+
 
 
 #------------------------------
@@ -19,117 +18,40 @@ from vis import visualize_traj_dynamic
 ws_model = dict()
 #robot radius
 ws_model['robot_radius'] = 0.2
-
-#-------------circular obstacles, format [x,y,rad]-------------
-#---no obstacles---#
-ws_model['circular_obstacles'] = []
-
-#---with obstacles---#
-# in the 7m by 7m map, structre a narrow passage with circular obstacles
-# [0, 3.5, 3]
-# [7, 3.5, 3]
-# ws_model['circular_obstacles'] = [[0, 3.5, 3], [7, 3.5, 3]]
-# in the center of 7m by 7m map, place 4 circular obstacles in a line
-# [1.4, 3.5, 0.3]
-# [2.8, 3.5, 0.3]
-# [4.2, 3.5, 0.3]
-# [5.6, 3.5, 0.3]
-# ws_model['circular_obstacles'] = [[1.4, 3.5, 0.3], [2.8, 3.5, 0.3], [4.2, 3.5, 0.3], [5.6, 3.5, 0.3]]
-# in the 7m by 7m map, structure a H maze with circular obstacles
-# [3.5, 10.2, 4]
-# [0, 5.5, 0.7]
-# [7, 5.5, 0.7]
-# [1, 3.5, 1.5]
-# [6, 3.5, 1.5]
-# [0, 1.5, 0.7]
-# [7, 1.5, 0.7]
-# [3.5, -3.2, 4]
-# ws_model['circular_obstacles'] = [[3.5, 10.2, 4], [0, 5.5, 0.7], [7, 5.5, 0.7], [1, 3.5, 1.5], [6, 3.5, 1.5], [0, 1.5, 0.7], [7, 1.5, 0.7], [3.5, -3.2, 4]]
-
-#-------------square obstacles, format [x,y,rad]-------------
-#---no obstacles---#
-# ws_model['square_obstacles'] = []
-
-#---with obstacles---#
-# in the center of 7m by 7m map, place a square obstacle
-# [3.5, 3.5, 1.0]
-# ws_model['square_obstacles'] = [[3.5, 3.5, 1.0]]
-# in the 7m by 7m map, structre a narrow passage
-# [0, 3.5, 2.8]
-# [7, 3.5, 2.8]
-# ws_model['square_obstacles'] = [[0, 3.5, 2.8], [7, 3.5, 2.8]]
-# in the center of 7m by 7m map, place 4 square obstacles in a line
-# [1.4, 3.5, 0.3]
-# [2.8, 3.5, 0.3]
-# [4.2, 3.5, 0.3]
-# [5.6, 3.5, 0.3]
-# ws_model['square_obstacles'] = [[1.4, 3.5, 0.3], [2.8, 3.5, 0.3], [4.2, 3.5, 0.3], [5.6, 3.5, 0.3]]
-# in the 7m by 7m map, structure a H maze
-# [3.5, 10.2, 4]
-# [0, 5.5, 0.7]
-# [7, 5.5, 0.7]
-# [1.3, 3.5, 1.5]
-# [5.7, 3.5, 1.5]
-# [0, 1.5, 0.7]
-# [7, 1.5, 0.7]
-# [3.5, -3.2, 4]
-ws_model['square_obstacles'] = [[3.5, 10.2, 4], [0, 5.5, 0.7], [7, 5.5, 0.7], [1.3, 3.5, 1.5], [5.7, 3.5, 1.5], [0, 1.5, 0.7], [7, 1.5, 0.7], [3.5, -3.2, 4]]
-# in the center of 30m by 30m map, place a square obstacle
-# [15.0, 15.0, 3.0]
-# ws_model['square_obstacles'] = [[15.0, 15.0, 3.0]]
-# in the center of 30m by 30m map, place 4 square obstacles
-# [10, 10, 3.0]
-# [20, 10, 3.0]
-# [10, 20, 3.0]
-# [20, 20, 3.0]
-# ws_model['square_obstacles'] = [[10, 10, 3.0], [20, 10, 3.0], [10, 20, 3.0], [20, 20, 3.0]]
-
-ws_model['boundary'] = []
+#circular obstacles, format [x,y,rad]
+# no obstacles
+# ws_model['circular_obstacles'] = []
+# with obstacles
+ws_model['circular_obstacles'] = [[-0.3, 2.5, 0.3], [1.5, 2.5, 0.3], [3.3, 2.5, 0.3], [5.1, 2.5, 0.3]]
+#rectangular boundary, format [x,y,width/2,heigth/2]
+ws_model['boundary'] = [] 
 
 #------------------------------
 #initialization for robot 
 # position of [x,y]
-# 2 robots with map size 7m by 7m
-# X = [[3.5, 1.0], [3.5, 6.0]]
-
-# 4 robots with map size 7m by 7m, and in a H maze
-X = [[1.5, 5.5], [5.5, 5.5], [1.5, 1.5], [5.5, 1.5]]
-
-# 14 robots with map size 7m by 7m, and 7 robots on each side in a line
-# X = [[0.5+1.0*i, 1.0] for i in range(7)] + [[0.5+1.0*i, 6.0] for i in range(7)]
-
-# 8 robots with map size 7m by 7m, and robots are in a circle
-# X = [[3.5+3.0*cos(2*PI/8*i), 3.5+3.0*sin(2*PI/8*i)] for i in range(8)]
-
-# 100 robots with map size 30m by 30m, and robots are in a circle
-# X = [[15.0+12.0*cos(2*PI/100*i), 15.0+12.0*sin(2*PI/100*i)] for i in range(100)]
+# 2 robots with map size 5m by 5m
+# X = [[2.5, 1.0], [2.5, 4.0]]
+# 14 robots with map size 7m by 7m
+X = [[-0.5+1.0*i, 0.0] for i in range(7)] + [[-0.5+1.0*i, 5.0] for i in range(7)]
+# 28 robots with map size 14m by 14m
 
 # velocity of [vx,vy]
 V = [[0,0] for i in range(len(X))]
 # maximal velocity norm
-# default velocity is 1.0
-V_max = [1 for i in range(len(X))]
+V_max = [1.0 for i in range(len(X))]
 
 # goal of [x,y]
-# 2 robots with map size 7m by 7m
-# goal = [[3.5, 6.0], [3.5, 1.0]]
+# 2 robots with map size 5m by 5m
+# goal = [[2.5, 4.0], [2.5, 1.0]]
+# 14 robots with map size 7m by 7m
+goal = [[5.5-1.0*i, 5.0] for i in range(7)] + [[5.5-1.0*i, 0.0] for i in range(7)]
+# 28 robots with map size 14m by 14m
 
-# 4 robots with map size 7m by 7m, and the goal of each robot is on the opposite side
-goal = [[5.5, 1.5], [1.5, 1.5], [5.5, 5.5], [1.5, 5.5]]
-
-# 14 robots with map size 7m by 7m, and the goal of each robot is on the opposite side
-# goal = [[6.5-1.0*i, 6.0] for i in range(7)] + [[6.5-1.0*i, 1.0] for i in range(7)]
-
-# 8 robots with map size 7m by 7m, and the goal of each robot is on the opposite side in a circle
-# goal = [[3.5+3.0*cos(2*PI/8*i+PI), 3.5+3.0*sin(2*PI/8*i+PI)] for i in range(8)]
-
-# 100 robots with map size 30m by 30m, and the goal of each robot is on the opposite side in a circle
-# goal = [[15.0+12.0*cos(2*PI/100*i+PI), 15.0+12.0*sin(2*PI/100*i+PI)] for i in range(100)]
 
 #------------------------------
 #simulation setup
 # total simulation time (s)
-total_time = 30
+total_time = 20
 # simulation step
 step = 0.01
 
@@ -137,9 +59,17 @@ step = 0.01
 #simulation starts
 t = 0
 while t*step < total_time:
+    print(f"--------------------- step {t}")
+    # print position
+    # for r in X:
+    #     print(f"pos: {r}")
     # compute desired vel to goal
     V_des = compute_V_des(X, goal, V_max)
     # compute the optimal vel to avoid collision
+    # print desired position
+    # for v in V_des:
+    #     print(f"desired velocity: {v}")
+
     V = RVO_update(X, V_des, V, ws_model)
     # update position
     for i in range(len(X)):
@@ -149,10 +79,8 @@ while t*step < total_time:
     # visualization
     if t%10 == 0:
         # uncomment to save simulation with no obstacles
-        # visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='../visualization/no_obstacles/snap%s.png'%str(t/10))
+        # visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='../visualization/no_obstacles_mod/snap%s.png'%str(t/10))
         # uncomment to save simulation with obstacles
-        visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='../visualization/with_obstacles/snap%s.png'%str(t/10))
+        visualize_traj_dynamic(ws_model, X, V, goal, time=t*step, name='../visualization/with_obstacles_mod/snap%s.png'%str(t/10))
     t += 1
-
-print('----------------------------------------')
-print('Finished RVO Simulation')
+    
